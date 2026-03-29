@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
+import { Navigation, Pagination, Autoplay, EffectFade, FreeMode } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
+import 'swiper/css/free-mode';
 
 const cars = [
   {
@@ -23,6 +24,7 @@ const cars = [
     },
     colors: ["#FFD700", "#C0C0C0", "#1a1a1a"],
     image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=1920&q=80",
+    accent: "from-yellow-400 to-orange-500",
   },
   {
     id: "y-plus",
@@ -37,6 +39,7 @@ const cars = [
     },
     colors: ["#4169E1", "#C0C0C0", "#1a1a1a"],
     image: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=1920&q=80",
+    accent: "from-blue-400 to-cyan-300",
   },
   {
     id: "v",
@@ -51,6 +54,7 @@ const cars = [
     },
     colors: ["#8B4513", "#C0C0C0", "#1a1a1a"],
     image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=1920&q=80",
+    accent: "from-purple-400 to-pink-400",
   },
   {
     id: "hyptec-ht",
@@ -65,6 +69,7 @@ const cars = [
     },
     colors: ["#C0C0C0", "#1a1a1a", "#000080"],
     image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1920&q=80",
+    accent: "from-slate-400 to-zinc-300",
   },
 ];
 
@@ -231,11 +236,67 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Models Carousel Section - Swipable Cards */}
+      <section id="models" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">Model Kami</h2>
+          <p className="text-gray-500 text-center mb-12">Pilih mobil listrik yang sesuai dengan kebutuhan Anda</p>
+          
+          <Swiper
+            modules={[Navigation, FreeMode]}
+            spaceBetween={24}
+            slidesPerView={1}
+            navigation
+            pagination={{ clickable: true }}
+            breakpoints={{
+              640: { slidesPerView: 2, spaceBetween: 20 },
+              1024: { slidesPerView: 3, spaceBetween: 24 },
+              1280: { slidesPerView: 4, spaceBetween: 24 },
+            }}
+            freeMode={true}
+            grabCursor={true}
+            className="models-carousel !pb-12"
+          >
+            {cars.map((car) => (
+              <SwiperSlide key={car.id}>
+                <div className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 h-full">
+                  <div className="relative h-48 overflow-hidden">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${car.accent} opacity-10`} />
+                    <Image
+                      src={car.image}
+                      alt={car.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-xl font-bold text-gray-900">{car.name}</h3>
+                    <p className="text-gray-500 text-sm mb-2">{car.tagline}</p>
+                    <p className="text-blue-600 font-semibold mb-4">{car.price}</p>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      {Object.entries(car.specs).slice(0, 3).map(([key, value]) => (
+                        <div key={key} className="flex justify-between">
+                          <span className="capitalize">{key}:</span>
+                          <span className="font-medium">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="w-full mt-4 bg-gray-900 text-white py-2 rounded-lg font-medium hover:bg-gray-800 transition">
+                      Learn More
+                    </button>
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </section>
+
       {/* Benefits Section */}
-      <section id="benefits" className="py-24 bg-neutral-900">
+      <section id="benefits" className="py-24 bg-neutral-50">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">Mengapa Memilih EV?</h2>
-          <p className="text-white/50 text-center mb-16">Keuntungan memiliki mobil listrik AION</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-gray-900">Mengapa Memilih EV?</h2>
+          <p className="text-gray-500 text-center mb-16">Keuntungan memiliki mobil listrik AION</p>
 
           <div className="grid md:grid-cols-4 gap-6">
             {[
@@ -244,10 +305,10 @@ export default function Home() {
               { icon: "🚀", title: "Canggih", desc: "Teknologi AI dan fitur-fitur mutakhir" },
               { icon: "🛡️", title: "Garansi Panjang", desc: "8 tahun garansi baterai dan kendaraan" },
             ].map((item, index) => (
-              <div key={index} className="bg-white/5 rounded-2xl p-8 text-center hover:bg-white/10 transition">
+              <div key={index} className="bg-white rounded-2xl p-8 text-center shadow-sm hover:shadow-md transition">
                 <div className="text-4xl mb-4">{item.icon}</div>
-                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                <p className="text-white/50 text-sm">{item.desc}</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">{item.title}</h3>
+                <p className="text-gray-500 text-sm">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -255,10 +316,10 @@ export default function Home() {
       </section>
 
       {/* Promotions Section */}
-      <section id="promotions" className="py-24 bg-black">
+      <section id="promotions" className="py-24 bg-gray-900">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">Promosi Terbaik</h2>
-          <p className="text-white/50 text-center mb-16">Dapatkan penawaran eksklusif dari AION</p>
+          <p className="text-gray-400 text-center mb-16">Dapatkan penawaran eksklusif dari AION</p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -267,9 +328,9 @@ export default function Home() {
               { title: "Free Service", desc: "Gratis perawatan hingga 5 tahun" },
               { title: "ERA 24/7", desc: "Bantuan darurat 24 jam" },
             ].map((promo, index) => (
-              <div key={index} className="bg-white/5 rounded-2xl p-6 hover:bg-white/10 transition">
+              <div key={index} className="bg-gray-800 p-6 rounded-2xl hover:bg-gray-700 transition">
                 <h3 className="text-lg font-semibold mb-2 text-blue-400">{promo.title}</h3>
-                <p className="text-white/50 text-sm">{promo.desc}</p>
+                <p className="text-gray-400 text-sm">{promo.desc}</p>
               </div>
             ))}
           </div>
@@ -283,11 +344,11 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-neutral-950 py-12">
+      <footer className="bg-black py-12">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="text-2xl font-bold mb-4 tracking-[0.3em]">AION</div>
-          <p className="text-white/40 text-sm mb-8">Electric Vehicle Masa Depan</p>
-          <div className="text-white/20 text-xs">© 2026 AION Indonesia. All rights reserved.</div>
+          <p className="text-gray-400 text-sm mb-8">Electric Vehicle Masa Depan</p>
+          <div className="text-gray-500 text-xs">© 2026 AION Indonesia. All rights reserved.</div>
         </div>
       </footer>
 
@@ -305,6 +366,30 @@ export default function Home() {
           </svg>
         </button>
       </div>
+
+      <style jsx global>{`
+        .models-carousel .swiper-button-next,
+        .models-carousel .swiper-button-prev {
+          color: #000;
+          background: white;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .models-carousel .swiper-button-next:after,
+        .models-carousel .swiper-button-prev:after {
+          font-size: 16px;
+          font-weight: bold;
+        }
+        .models-carousel .swiper-pagination-bullet {
+          background: #000;
+          opacity: 0.3;
+        }
+        .models-carousel .swiper-pagination-bullet-active {
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 }
