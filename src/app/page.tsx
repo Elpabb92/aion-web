@@ -95,7 +95,9 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState<any>(null);
   const [selectedVariant, setSelectedVariant] = useState<string>("std");
+  const [activeModel, setActiveModel] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const modelCarouselRef = useRef<HTMLDivElement>(null);
   
 
   useEffect(() => {
@@ -120,11 +122,43 @@ export default function Home() {
     goToSlide((activeSlide - 1 + cars.length) % cars.length);
   };
 
-  
+  const scrollToModel = (index: number) => {
+    if (modelCarouselRef.current) {
+      const container = modelCarouselRef.current;
+      const cardWidth = 340;
+      const gap = 24;
+      const scrollPos = (cardWidth + gap) * index - (container.clientWidth - cardWidth) / 2;
+      container.scrollTo({ left: Math.max(0, scrollPos), behavior: 'smooth' });
+      setActiveModel(index);
+    }
+  };
+
+  const handleModelScroll = () => {
+    if (modelCarouselRef.current) {
+      const container = modelCarouselRef.current;
+      const cardWidth = 340;
+      const gap = 24;
+      const scrollPos = container.scrollLeft;
+      const newIndex = Math.round(scrollPos / (cardWidth + gap));
+      if (newIndex !== activeModel && newIndex >= 0 && newIndex < cars.length) {
+        setActiveModel(newIndex);
+      }
+    }
+  };
+
+  const nextModel = () => {
+    const next = (activeModel + 1) % cars.length;
+    scrollToModel(next);
+  };
+
+  const prevModel = () => {
+    const prev = (activeModel - 1 + cars.length) % cars.length;
+    scrollToModel(prev);
+  };
 
   const openModal = (car: any) => {
     setSelectedCar(car);
-    setSelectedVariant(car.variants[0].id);
+    setSelectedVariant(car.variants?.[0]?.id || "std");
     setIsModalOpen(true);
   };
 
@@ -133,13 +167,13 @@ export default function Home() {
     setSelectedCar(null);
   };
 
-  const handleVariantChange = (variantId: string) => {
-    setSelectedVariant(variantId);
-  };
-
   const getSelectedVariant = () => {
     if (!selectedCar) return null;
-    return selectedCar.variants.find((v: any) => v.id === selectedVariant) || selectedCar.variants[0];
+    return selectedCar.variants?.find((v: any) => v.id === selectedVariant) || selectedCar.variants?.[0];
+  };
+
+  const handleVariantChange = (variantId: string) => {
+    setSelectedVariant(variantId);
   };
 
   return (
@@ -155,7 +189,7 @@ export default function Home() {
           </nav>
           <div className="flex gap-4">
             <a
-              href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+              href="https://wa.me/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-black text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition"
@@ -163,7 +197,7 @@ export default function Home() {
               Booking Test Drive
             </a>
             <a
-              href="https://wa.link/6287875906945"
+              href="https://wa.me/6287875906945"
               target="_blank"
               rel="noopener noreferrer"
               className="border border-black text-black bg-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-black hover:text-white transition"
@@ -243,7 +277,7 @@ export default function Home() {
                       Learn More
                     </button>
                     <a
-                      href="https://wa.link/6287875906945"
+                      href="https://wa.me/6287875906945"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="border border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition inline-block text-center"
@@ -306,63 +340,107 @@ export default function Home() {
           <h2 className="text-4xl font-bold text-center mb-4 text-white">Model Kami</h2>
           <p className="text-gray-400 text-center mb-12">Pilih mobil listrik yang sesuai dengan kebutuhan Anda</p>
           
-          {/* Grid of 4 Models */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {cars.map((car, index) => (
-              <div
-                key={car.id}
-                className="bg-gray-900 rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border border-gray-800 hover:scale-[1.02]"
-              >
-                {/* Car Image */}
-                <div className="relative h-56 overflow-hidden">
-                  <Image
-                    src={car.image}
-                    alt={car.name}
-                    fill
-                    className="object-cover"
-                    priority={index < 2}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-                </div>
-                
-                {/* Car Info */}
-                <div className="p-6 -mt-20 relative z-10">
-                  <div className="text-sm text-gray-400 uppercase tracking-wider mb-1">
-                    {index === 0 ? 'Compact EV' : index === 1 ? 'SUV' : index === 2 ? 'Premium SUV' : 'Luxury SUV'}
-                  </div>
-                  <h3 className="text-3xl font-bold text-white mb-1">{car.name}</h3>
-                  <p className="text-blue-400 font-semibold text-lg mb-4">{car.price}</p>
-                  
-                  {/* Quick Specs */}
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    {Object.entries(car.specs).slice(0, 2).map(([key, value]) => (
-                      <div key={key} className="bg-gray-800/50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{key}</div>
-                        <div className="font-semibold text-white text-sm">{value}</div>
+          {/* Tesla-Style Carousel - Horizontal Scroll Snap */}
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevModel}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition hidden md:flex"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={nextModel}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition hidden md:flex"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Carousel Track */}
+            <div 
+              ref={modelCarouselRef}
+              onScroll={handleModelScroll}
+              className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-8 px-4 md:px-16 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {cars.map((car, index) => (
+                <div
+                  key={car.id}
+                  className={`model-card flex-shrink-0 snap-center transition-all duration-500 ${
+                    index === activeModel ? 'scale-100 opacity-100' : 'scale-95 opacity-70'
+                  }`}
+                  style={{ width: '100%', maxWidth: '340px' }}
+                >
+                  <div className="bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 h-full">
+                    {/* Car Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={car.image}
+                        alt={car.name}
+                        fill
+                        className="object-cover"
+                        priority={index < 2}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+                    </div>
+                    
+                    {/* Car Info */}
+                    <div className="p-5 -mt-16 relative z-10">
+                      <div className="text-sm text-gray-400 uppercase tracking-wider mb-1">
+                        {index === 0 ? 'Compact EV' : index === 1 ? 'SUV' : index === 2 ? 'Premium SUV' : 'Luxury SUV'}
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* Buttons */}
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => openModal(car)}
-                      className="flex-1 bg-white text-black py-3 rounded-full font-semibold hover:bg-gray-200 transition"
-                    >
-                      Learn More
-                    </button>
-                    <a
-                      href="https://wa.link/6287875906945"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 border border-white/30 text-white py-3 rounded-full font-semibold hover:bg-white/10 transition text-center"
-                    >
-                      Order Now
-                    </a>
+                      <h3 className="text-2xl font-bold text-white mb-1">{car.name}</h3>
+                      <p className="text-blue-400 font-semibold mb-3">{car.price}</p>
+                      
+                      {/* Quick Specs */}
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        {Object.entries(car.specs).slice(0, 2).map(([key, value]) => (
+                          <div key={key} className="bg-gray-800/50 rounded-lg p-2">
+                            <div className="text-xs text-gray-500 uppercase">{key}</div>
+                            <div className="font-semibold text-white text-sm">{value}</div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Buttons */}
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => openModal(car)}
+                          className="flex-1 bg-white text-black py-2.5 rounded-full font-semibold hover:bg-gray-200 transition text-sm"
+                        >
+                          Learn More
+                        </button>
+                        <a
+                          href="https://wa.me/6287875906945"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 border border-white/30 text-white py-2.5 rounded-full font-semibold hover:bg-white/10 transition text-sm text-center"
+                        >
+                          Order Now
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Pagination Dots */}
+            <div className="flex justify-center gap-3 mt-4">
+              {cars.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollToModel(index)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    index === activeModel ? "w-8 bg-white" : "w-2 bg-white/30"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -412,7 +490,7 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <a
-              href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+              href="https://wa.me/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full font-medium transition inline-block"
@@ -426,7 +504,7 @@ export default function Home() {
       {/* Tesla-Style Sticky Bottom CTA Bar */}
       <div className="hidden md:flex fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40 h-[70px] items-center justify-between px-8">
         <a
-          href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+          href="https://wa.me/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
           target="_blank"
           rel="noopener noreferrer"
           className="bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition"
@@ -434,7 +512,7 @@ export default function Home() {
           Booking Test Drive
         </a>
         <a
-          href="https://wa.link/6287875906945"
+          href="https://wa.me/6287875906945"
           target="_blank"
           rel="noopener noreferrer"
           className="border border-black text-black bg-white px-8 py-3 rounded-full font-semibold hover:bg-black hover:text-white transition"
@@ -453,7 +531,7 @@ export default function Home() {
 
       {/* Floating WhatsApp Button - Fixed di mobile agar tidak tertimpa Mobile Nav */}
       <a
-        href="https://wa.link/6287875906945"
+        href="https://wa.me/6287875906945"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-20 md:bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
@@ -593,7 +671,7 @@ export default function Home() {
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <a
-                    href="https://wa.link/6287875906945"
+                    href="https://wa.me/6287875906945"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 bg-white text-black py-4 rounded-full font-semibold text-center hover:bg-gray-200 transition"
@@ -601,7 +679,7 @@ export default function Home() {
                     Order Now via WhatsApp
                   </a>
                   <a
-                    href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+                    href="https://wa.me/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 border border-white text-white py-4 rounded-full font-semibold text-center hover:bg-white/10 transition"
