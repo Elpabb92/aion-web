@@ -2,13 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectFade, FreeMode } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
-import 'swiper/css/free-mode';
 
 const cars = [
   {
@@ -77,7 +70,9 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [selectedColor, setSelectedColor] = useState<Record<string, number>>({});
+  const [activeModel, setActiveModel] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const modelCarouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -101,6 +96,40 @@ export default function Home() {
     goToSlide((activeSlide - 1 + cars.length) % cars.length);
   };
 
+  const scrollToModel = (index: number) => {
+    if (modelCarouselRef.current) {
+      const container = modelCarouselRef.current;
+      const cardWidth = container.querySelector('.model-card')?.clientWidth || 400;
+      const gap = 24;
+      const scrollPos = (cardWidth + gap) * index - (container.clientWidth - cardWidth) / 2;
+      container.scrollTo({ left: scrollPos, behavior: 'smooth' });
+      setActiveModel(index);
+    }
+  };
+
+  const handleModelScroll = () => {
+    if (modelCarouselRef.current) {
+      const container = modelCarouselRef.current;
+      const cardWidth = container.querySelector('.model-card')?.clientWidth || 400;
+      const gap = 24;
+      const scrollPos = container.scrollLeft;
+      const newIndex = Math.round(scrollPos / (cardWidth + gap));
+      if (newIndex !== activeModel && newIndex >= 0 && newIndex < cars.length) {
+        setActiveModel(newIndex);
+      }
+    }
+  };
+
+  const nextModel = () => {
+    const next = (activeModel + 1) % cars.length;
+    scrollToModel(next);
+  };
+
+  const prevModel = () => {
+    const prev = (activeModel - 1 + cars.length) % cars.length;
+    scrollToModel(prev);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Header */}
@@ -108,7 +137,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="text-2xl font-bold tracking-[0.3em]">AION</div>
           <nav className="hidden md:flex gap-8">
-            <button onClick={() => goToSlide(0)} className="text-sm hover:text-white/70 transition">Models</button>
+            <button onClick={() => scrollToModel(0)} className="text-sm hover:text-white/70 transition">Models</button>
             <a href="#benefits" className="text-sm text-white/60 hover:text-white transition">Benefits</a>
             <a href="#promotions" className="text-sm text-white/60 hover:text-white transition">Promotions</a>
           </nav>
@@ -236,59 +265,106 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Models Carousel Section - Swipable Cards */}
-      <section id="models" className="py-20 bg-white">
+      {/* Tesla-Style Model Selector Carousel */}
+      <section id="models" className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">Model Kami</h2>
-          <p className="text-gray-500 text-center mb-12">Pilih mobil listrik yang sesuai dengan kebutuhan Anda</p>
+          <h2 className="text-4xl font-bold text-center mb-4 text-white">Model Kami</h2>
+          <p className="text-gray-400 text-center mb-12">Pilih mobil listrik yang sesuai dengan kebutuhan Anda</p>
           
-          <Swiper
-            modules={[Navigation, FreeMode]}
-            spaceBetween={24}
-            slidesPerView={1}
-            navigation
-            pagination={{ clickable: true }}
-            breakpoints={{
-              640: { slidesPerView: 2, spaceBetween: 20 },
-              1024: { slidesPerView: 3, spaceBetween: 24 },
-              1280: { slidesPerView: 4, spaceBetween: 24 },
-            }}
-            freeMode={true}
-            grabCursor={true}
-            className="models-carousel !pb-12"
-          >
-            {cars.map((car) => (
-              <SwiperSlide key={car.id}>
-                <div className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 h-full">
-                  <div className="relative h-48 overflow-hidden">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${car.accent} opacity-10`} />
-                    <Image
-                      src={car.image}
-                      alt={car.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-xl font-bold text-gray-900">{car.name}</h3>
-                    <p className="text-gray-500 text-sm mb-2">{car.tagline}</p>
-                    <p className="text-blue-600 font-semibold mb-4">{car.price}</p>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      {Object.entries(car.specs).slice(0, 3).map(([key, value]) => (
-                        <div key={key} className="flex justify-between">
-                          <span className="capitalize">{key}:</span>
-                          <span className="font-medium">{value}</span>
-                        </div>
-                      ))}
+          {/* Tesla-Style Carousel */}
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevModel}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition hidden md:flex"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={nextModel}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition hidden md:flex"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Carousel Track */}
+            <div 
+              ref={modelCarouselRef}
+              onScroll={handleModelScroll}
+              className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-8 px-4 md:px-16 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {cars.map((car, index) => (
+                <div
+                  key={car.id}
+                  className={`model-card flex-shrink-0 snap-center transition-all duration-500 ${
+                    index === activeModel ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-60'
+                  }`}
+                  style={{ width: '100%', maxWidth: '400px' }}
+                >
+                  <div className="bg-gray-900 rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border border-gray-800">
+                    {/* Car Image */}
+                    <div className="relative h-56 overflow-hidden">
+                      <Image
+                        src={car.image}
+                        alt={car.name}
+                        fill
+                        className="object-cover"
+                        priority={index < 2}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
                     </div>
-                    <button className="w-full mt-4 bg-gray-900 text-white py-2 rounded-lg font-medium hover:bg-gray-800 transition">
-                      Learn More
-                    </button>
+                    
+                    {/* Car Info */}
+                    <div className="p-6 -mt-20 relative z-10">
+                      <div className="text-sm text-gray-400 uppercase tracking-wider mb-1">
+                        {index === 0 ? 'Compact EV' : index === 1 ? 'SUV' : index === 2 ? 'Premium SUV' : 'Luxury SUV'}
+                      </div>
+                      <h3 className="text-3xl font-bold text-white mb-1">{car.name}</h3>
+                      <p className="text-blue-400 font-semibold text-lg mb-4">{car.price}</p>
+                      
+                      {/* Quick Specs */}
+                      <div className="grid grid-cols-2 gap-3 mb-6">
+                        {Object.entries(car.specs).slice(0, 2).map(([key, value]) => (
+                          <div key={key} className="bg-gray-800/50 rounded-lg p-3">
+                            <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{key}</div>
+                            <div className="font-semibold text-white text-sm">{value}</div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Buttons */}
+                      <div className="flex gap-3">
+                        <button className="flex-1 bg-white text-black py-3 rounded-full font-semibold hover:bg-gray-200 transition">
+                          Learn More
+                        </button>
+                        <button className="flex-1 border border-white/30 text-white py-3 rounded-full font-semibold hover:bg-white/10 transition">
+                          Order Now
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+              ))}
+            </div>
+
+            {/* Pagination Dots */}
+            <div className="flex justify-center gap-3 mt-8">
+              {cars.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollToModel(index)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    index === activeModel ? "w-12 bg-white" : "w-3 bg-white/30 hover:bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -368,26 +444,8 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
-        .models-carousel .swiper-button-next,
-        .models-carousel .swiper-button-prev {
-          color: #000;
-          background: white;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .models-carousel .swiper-button-next:after,
-        .models-carousel .swiper-button-prev:after {
-          font-size: 16px;
-          font-weight: bold;
-        }
-        .models-carousel .swiper-pagination-bullet {
-          background: #000;
-          opacity: 0.3;
-        }
-        .models-carousel .swiper-pagination-bullet-active {
-          opacity: 1;
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </div>
