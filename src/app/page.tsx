@@ -18,6 +18,12 @@ const cars = [
     colors: ["#FFD700", "#C0C0C0", "#1a1a1a"],
     image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=1920&q=80",
     accent: "from-yellow-400 to-orange-500",
+    // Data lengkap untuk modal
+    variants: [
+      { id: "std", name: "Standard", price: "Rp 325jt", battery: "44kWh", range: "400km NEDC", power: "134 HP", torque: "145 Nm", acceleration: "11.4s", charging: "30-80% dalam 24 menit" },
+      { id: "prem", name: "Premium", price: "Rp 363jt", battery: "60kWh", range: "500km NEDC", power: "201 HP", torque: "210 Nm", acceleration: "7.3s", charging: "30-80% dalam 24 menit" },
+    ],
+    features: ["Owl Eyes LED", "ADAS Level 2", "V2L (Vehicle to Load)", "14.6\" infotainment", "Butterfly seat"],
   },
   {
     id: "y-plus",
@@ -33,6 +39,11 @@ const cars = [
     colors: ["#4169E1", "#C0C0C0", "#1a1a1a"],
     image: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=1920&q=80",
     accent: "from-blue-400 to-cyan-300",
+    variants: [
+      { id: "excl", name: "Exclusive", price: "Rp 419jt", battery: "50.66kWh", range: "410km NEDC", power: "204 HP", torque: "225 Nm", acceleration: "N/A", charging: "N/A" },
+      { id: "prem", name: "Premium", price: "Rp 475jt", battery: "63.2kWh", range: "490km NEDC", power: "204 HP", torque: "225 Nm", acceleration: "N/A", charging: "N/A" },
+    ],
+    features: ["King-size bed mode", "Panoramic sunroof", "14.6\" screen", "Karaoke system", "360° camera"],
   },
   {
     id: "v",
@@ -48,6 +59,11 @@ const cars = [
     colors: ["#8B4513", "#C0C0C0", "#1a1a1a"],
     image: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=1920&q=80",
     accent: "from-purple-400 to-pink-400",
+    variants: [
+      { id: "excl", name: "Exclusive", price: "Rp 449jt", battery: "64.5kWh", range: "505km NEDC", power: "184 HP", torque: "240 Nm", acceleration: "7.9s", charging: "30-80% dalam 16 menit" },
+      { id: "lux", name: "Luxury", price: "Rp 489jt", battery: "75.3kWh", range: "602km NEDC", power: "204 HP", torque: "240 Nm", acceleration: "7.9s", charging: "30-80% dalam 16 menit" },
+    ],
+    features: ["Mini fridge (-15°C)", "Panoramic roof", "360° camera", "V2L (Vehicle to Load)", "ADAS Level 2"],
   },
   {
     id: "hyptec-ht",
@@ -63,6 +79,11 @@ const cars = [
     colors: ["#C0C0C0", "#1a1a1a", "#000080"],
     image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1920&q=80",
     accent: "from-slate-400 to-zinc-300",
+    variants: [
+      { id: "prem", name: "Premium", price: "Rp 691jt", battery: "83 kWh", range: "600+ km NEDC", power: "335 HP", torque: "430 Nm", acceleration: "5.8s", charging: "N/A" },
+      { id: "ultra", name: "Ultra", price: "Rp 843.5jt", battery: "83 kWh", range: "600+ km NEDC", power: "335 HP", torque: "430 Nm", acceleration: "5.8s", charging: "N/A" },
+    ],
+    features: ["First class seat", "Gullwing doors (Ultra)", "Dolby Atmos sound system", "Panoramic roof", "3.3kW V2L"],
   },
 ];
 
@@ -70,9 +91,12 @@ export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [selectedColor, setSelectedColor] = useState<Record<string, number>>({});
-  const [activeModel, setActiveModel] = useState(0);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<any>(null);
+  const [selectedVariant, setSelectedVariant] = useState<string>("std");
   const carouselRef = useRef<HTMLDivElement>(null);
-  const modelCarouselRef = useRef<HTMLDivElement>(null);
+  
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -96,38 +120,26 @@ export default function Home() {
     goToSlide((activeSlide - 1 + cars.length) % cars.length);
   };
 
-  const scrollToModel = (index: number) => {
-    if (modelCarouselRef.current) {
-      const container = modelCarouselRef.current;
-      const cardWidth = container.querySelector('.model-card')?.clientWidth || 400;
-      const gap = 24;
-      const scrollPos = (cardWidth + gap) * index - (container.clientWidth - cardWidth) / 2;
-      container.scrollTo({ left: scrollPos, behavior: 'smooth' });
-      setActiveModel(index);
-    }
+  
+
+  const openModal = (car: any) => {
+    setSelectedCar(car);
+    setSelectedVariant(car.variants[0].id);
+    setIsModalOpen(true);
   };
 
-  const handleModelScroll = () => {
-    if (modelCarouselRef.current) {
-      const container = modelCarouselRef.current;
-      const cardWidth = container.querySelector('.model-card')?.clientWidth || 400;
-      const gap = 24;
-      const scrollPos = container.scrollLeft;
-      const newIndex = Math.round(scrollPos / (cardWidth + gap));
-      if (newIndex !== activeModel && newIndex >= 0 && newIndex < cars.length) {
-        setActiveModel(newIndex);
-      }
-    }
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedCar(null);
   };
 
-  const nextModel = () => {
-    const next = (activeModel + 1) % cars.length;
-    scrollToModel(next);
+  const handleVariantChange = (variantId: string) => {
+    setSelectedVariant(variantId);
   };
 
-  const prevModel = () => {
-    const prev = (activeModel - 1 + cars.length) % cars.length;
-    scrollToModel(prev);
+  const getSelectedVariant = () => {
+    if (!selectedCar) return null;
+    return selectedCar.variants.find((v: any) => v.id === selectedVariant) || selectedCar.variants[0];
   };
 
   return (
@@ -137,7 +149,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="text-2xl font-bold tracking-[0.3em]">AION</div>
           <nav className="hidden md:flex gap-8">
-            <button onClick={() => scrollToModel(0)} className="text-sm hover:text-white/70 transition">Models</button>
+            <a href="#models" className="text-sm hover:text-white/70 transition">Models</a>
             <a href="#benefits" className="text-sm text-white/60 hover:text-white transition">Benefits</a>
             <a href="#promotions" className="text-sm text-white/60 hover:text-white transition">Promotions</a>
           </nav>
@@ -224,12 +236,20 @@ export default function Home() {
 
                   {/* CTAs */}
                   <div className="flex gap-4 pt-4">
-                    <button className="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-200 transition">
+                    <button 
+                      onClick={() => openModal(car)}
+                      className="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-200 transition"
+                    >
                       Learn More
                     </button>
-                    <button className="border border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition">
+                    <a
+                      href="https://wa.link/6287875906945"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition inline-block text-center"
+                    >
                       Order Now
-                    </button>
+                    </a>
                   </div>
                 </div>
 
@@ -280,104 +300,69 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Tesla-Style Model Selector Carousel */}
+      {/* Models Grid Section */}
       <section id="models" className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-4 text-white">Model Kami</h2>
           <p className="text-gray-400 text-center mb-12">Pilih mobil listrik yang sesuai dengan kebutuhan Anda</p>
           
-          {/* Tesla-Style Carousel */}
-          <div className="relative">
-            {/* Navigation Arrows */}
-            <button
-              onClick={prevModel}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition hidden md:flex"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={nextModel}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 transition hidden md:flex"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Carousel Track */}
-            <div 
-              ref={modelCarouselRef}
-              onScroll={handleModelScroll}
-              className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-8 scrollbar-hide"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {cars.map((car, index) => (
-                <div
-                  key={car.id}
-                  className={`model-card flex-shrink-0 snap-center transition-all duration-500 ${
-                    index === activeModel ? 'ring-2 ring-white shadow-xl' : ''
-                  } w-[calc(100vw-2rem)] md:w-[calc(33.333%-1.5rem)] lg:w-[calc(25%-1.5rem)] max-w-[400px]`}
-                >
-                  <div className="bg-gray-900 rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border border-gray-800">
-                    {/* Car Image */}
-                    <div className="relative h-56 overflow-hidden">
-                      <Image
-                        src={car.image}
-                        alt={car.name}
-                        fill
-                        className="object-cover"
-                        priority={index < 2}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-                    </div>
-                    
-                    {/* Car Info */}
-                    <div className="p-6 -mt-20 relative z-10">
-                      <div className="text-sm text-gray-400 uppercase tracking-wider mb-1">
-                        {index === 0 ? 'Compact EV' : index === 1 ? 'SUV' : index === 2 ? 'Premium SUV' : 'Luxury SUV'}
+          {/* Grid of 4 Models */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {cars.map((car, index) => (
+              <div
+                key={car.id}
+                className="bg-gray-900 rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border border-gray-800 hover:scale-[1.02]"
+              >
+                {/* Car Image */}
+                <div className="relative h-56 overflow-hidden">
+                  <Image
+                    src={car.image}
+                    alt={car.name}
+                    fill
+                    className="object-cover"
+                    priority={index < 2}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+                </div>
+                
+                {/* Car Info */}
+                <div className="p-6 -mt-20 relative z-10">
+                  <div className="text-sm text-gray-400 uppercase tracking-wider mb-1">
+                    {index === 0 ? 'Compact EV' : index === 1 ? 'SUV' : index === 2 ? 'Premium SUV' : 'Luxury SUV'}
+                  </div>
+                  <h3 className="text-3xl font-bold text-white mb-1">{car.name}</h3>
+                  <p className="text-blue-400 font-semibold text-lg mb-4">{car.price}</p>
+                  
+                  {/* Quick Specs */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {Object.entries(car.specs).slice(0, 2).map(([key, value]) => (
+                      <div key={key} className="bg-gray-800/50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{key}</div>
+                        <div className="font-semibold text-white text-sm">{value}</div>
                       </div>
-                      <h3 className="text-3xl font-bold text-white mb-1">{car.name}</h3>
-                      <p className="text-blue-400 font-semibold text-lg mb-4">{car.price}</p>
-                      
-                      {/* Quick Specs */}
-                      <div className="grid grid-cols-2 gap-3 mb-6">
-                        {Object.entries(car.specs).slice(0, 2).map(([key, value]) => (
-                          <div key={key} className="bg-gray-800/50 rounded-lg p-3">
-                            <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{key}</div>
-                            <div className="font-semibold text-white text-sm">{value}</div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Buttons */}
-                      <div className="flex gap-3">
-                        <button className="flex-1 bg-white text-black py-3 rounded-full font-semibold hover:bg-gray-200 transition">
-                          Learn More
-                        </button>
-                        <button className="flex-1 border border-white/30 text-white py-3 rounded-full font-semibold hover:bg-white/10 transition">
-                          Order Now
-                        </button>
-                      </div>
-                    </div>
+                    ))}
+                  </div>
+                  
+                  {/* Buttons */}
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => openModal(car)}
+                      className="flex-1 bg-white text-black py-3 rounded-full font-semibold hover:bg-gray-200 transition"
+                    >
+                      Learn More
+                    </button>
+                    <a
+                      href="https://wa.link/6287875906945"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 border border-white/30 text-white py-3 rounded-full font-semibold hover:bg-white/10 transition text-center"
+                    >
+                      Order Now
+                    </a>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Pagination Dots */}
-            <div className="flex justify-center gap-3 mt-8">
-              {cars.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => scrollToModel(index)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    index === activeModel ? "w-12 bg-white" : "w-3 bg-white/30 hover:bg-white/50"
-                  }`}
-                />
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -498,6 +483,145 @@ export default function Home() {
           </svg>
         </button>
       </div>
+
+      {/* Product Detail Modal */}
+      {isModalOpen && selectedCar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto">
+          <div className="relative w-full max-w-6xl bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-800">
+            {/* Close Button */}
+            <button
+              onClick={closeModal}
+              className="absolute top-6 right-6 z-50 w-10 h-10 bg-gray-800/80 rounded-full flex items-center justify-center hover:bg-gray-700 transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Modal Content */}
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Left: Car Image */}
+              <div className="relative h-96 lg:h-full min-h-[500px]">
+                <Image
+                  src={selectedCar.image}
+                  alt={selectedCar.name}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+              </div>
+
+              {/* Right: Details */}
+              <div className="p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-200px)]">
+                <div className="mb-6">
+                  <h2 className="text-5xl font-bold text-white mb-2">{selectedCar.name}</h2>
+                  <p className="text-gray-400 text-lg">{selectedCar.tagline}</p>
+                </div>
+
+                {/* Variant Selector */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-4">Pilih Varian</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedCar.variants.map((variant: any) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => handleVariantChange(variant.id)}
+                        className={`px-6 py-3 rounded-full font-medium transition ${
+                          selectedVariant === variant.id
+                            ? 'bg-white text-black'
+                            : 'bg-gray-800 text-white hover:bg-gray-700'
+                        }`}
+                      >
+                        {variant.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dynamic Price */}
+                <div className="mb-8">
+                  <div className="text-3xl font-bold text-blue-400">
+                    {getSelectedVariant()?.price}
+                  </div>
+                  <p className="text-gray-400 text-sm mt-1">Harga OTR Jakarta</p>
+                </div>
+
+                {/* Specifications */}
+                <div className="mb-10">
+                  <h3 className="text-xl font-semibold text-white mb-6">Spesifikasi Teknis</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-800/50 rounded-xl p-4">
+                      <div className="text-sm text-gray-400 mb-1">Battery</div>
+                      <div className="text-lg font-semibold text-white">{getSelectedVariant()?.battery}</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4">
+                      <div className="text-sm text-gray-400 mb-1">Range (NEDC)</div>
+                      <div className="text-lg font-semibold text-white">{getSelectedVariant()?.range}</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4">
+                      <div className="text-sm text-gray-400 mb-1">Power</div>
+                      <div className="text-lg font-semibold text-white">{getSelectedVariant()?.power}</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4">
+                      <div className="text-sm text-gray-400 mb-1">Torque</div>
+                      <div className="text-lg font-semibold text-white">{getSelectedVariant()?.torque}</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4">
+                      <div className="text-sm text-gray-400 mb-1">0-100 km/h</div>
+                      <div className="text-lg font-semibold text-white">{getSelectedVariant()?.acceleration}</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-4">
+                      <div className="text-sm text-gray-400 mb-1">Charging</div>
+                      <div className="text-lg font-semibold text-white">{getSelectedVariant()?.charging}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="mb-10">
+                  <h3 className="text-xl font-semibold text-white mb-4">Fitur Utama</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedCar.features.map((feature: string, idx: number) => (
+                      <span key={idx} className="px-4 py-2 bg-gray-800/50 rounded-full text-sm text-white">
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <a
+                    href="https://wa.link/6287875906945"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-white text-black py-4 rounded-full font-semibold text-center hover:bg-gray-200 transition"
+                  >
+                    Order Now via WhatsApp
+                  </a>
+                  <a
+                    href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 border border-white text-white py-4 rounded-full font-semibold text-center hover:bg-white/10 transition"
+                  >
+                    Booking Test Drive
+                  </a>
+                </div>
+
+                {/* Back Button */}
+                <button
+                  onClick={closeModal}
+                  className="mt-8 text-gray-400 hover:text-white transition text-center w-full"
+                >
+                  ← Kembali ke Model
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar {
