@@ -142,9 +142,14 @@ export default function Home() {
             <a href="#promotions" className="text-sm text-white/60 hover:text-white transition">Promotions</a>
           </nav>
           <div className="flex gap-4">
-            <button className="bg-black text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition">
+            <a
+              href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-black text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-gray-800 transition"
+            >
               Booking Test Drive
-            </button>
+            </a>
             <a
               href="https://wa.link/6287875906945"
               target="_blank"
@@ -421,18 +426,28 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <button className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full font-medium transition">
+            <a
+              href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full font-medium transition inline-block"
+            >
               Booking Test Drive
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Tesla-Style Sticky Bottom CTA Bar */}
       <div className="hidden md:flex fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40 h-[70px] items-center justify-between px-8">
-        <button className="bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition">
+        <a
+          href="https://wa.link/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition"
+        >
           Booking Test Drive
-        </button>
+        </a>
         <a
           href="https://wa.link/6287875906945"
           target="_blank"
@@ -451,12 +466,12 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Button - Fixed di mobile agar tidak tertimpa Mobile Nav */}
       <a
         href="https://wa.link/6287875906945"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
+        className="fixed bottom-20 md:bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
         aria-label="Chat via WhatsApp"
       >
         <svg
