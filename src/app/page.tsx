@@ -501,13 +501,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Tesla-Style Sticky Bottom CTA Bar */}
-      <div className="hidden md:flex fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40 h-[70px] items-center justify-between px-8">
+      {/* Tesla-Style Sticky Bottom CTA Bar - Always Visible */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_20px_rgba(0,0,0,0.15)] z-50 h-[60px] md:h-[70px] flex items-center justify-center gap-4 md:gap-8 px-4 md:px-8">
         <a
           href="https://wa.me/6287875906945?text=Halo,%20saya%20ingin%20booking%20test%20drive%20AION"
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition"
+          className="bg-black text-white px-6 py-2 md:px-8 md:py-3 rounded-full font-semibold hover:bg-gray-800 transition text-sm md:text-base"
         >
           Booking Test Drive
         </a>
@@ -515,7 +515,7 @@ export default function Home() {
           href="https://wa.me/6287875906945"
           target="_blank"
           rel="noopener noreferrer"
-          className="border border-black text-black bg-white px-8 py-3 rounded-full font-semibold hover:bg-black hover:text-white transition"
+          className="border-2 border-black text-black px-6 py-2 md:px-8 md:py-3 rounded-full font-semibold hover:bg-black hover:text-white transition text-sm md:text-base"
         >
           Hubungi Kami
         </a>
@@ -529,25 +529,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Floating WhatsApp Button - Fixed di mobile agar tidak tertimpa Mobile Nav */}
-      <a
-        href="https://wa.me/6287875906945"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-20 md:bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
-        aria-label="Chat via WhatsApp"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="white"
-          className="w-8 h-8 md:w-10 md:h-10"
-        >
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-1.24-.619-2.374-1.54-3.318-2.768-.297-.396.297-.371.892-1.238.099-.173.05-.322-.025-.446-.074-.124-.669-1.612-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.067 2.875 1.215 3.074.149.198 2.095 3.2 5.073 4.487.709.297 1.263.446 1.694.571.712.205 1.36.179 1.87.109.57-.074 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.462 7.644c-.712 0-1.415-.099-2.099-.298a9.87 9.87 0 01-3.192-1.541l-4.5 1.165 1.215-4.372A9.87 9.87 0 012.08 7.686c0-5.444 4.457-9.875 9.93-9.875 2.654 0 5.148 1.034 7.021 2.907a9.875 9.875 0 012.906 7.019c0 5.444-4.457 9.875-9.93 9.875z" />
-        </svg>
-      </a>
-
-      {/* Mobile Bottom Nav */}
+      {/* Mobile Bottom Nav - Adjusted for sticky CTA */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10 p-4 flex items-center justify-between z-40">
         <button onClick={prevSlide} className="p-2">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
